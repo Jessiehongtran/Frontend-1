@@ -1,10 +1,17 @@
-import React, {useState} from 'react';
-import {Form, Field, withFormik, yupToFormErrors} from 'formik'
+import React, {useState, useEffect} from 'react';
+import {Form, Field, withFormik} from 'formik'
 import * as Yup from "yup";
 
-const SignUp = () => {
-    const [user, setUser] = useState({email:'', password:'', passwordConfirm: ''})
+const SignUp = (props) => {
+    const [user, setUser] = useState([])
 
+    useEffect(()=> {
+        if(props.status) {
+            setUser([...user, props.status])
+        }
+    })
+
+    console.log(props)
     return (
         <div>
             SignUp
@@ -14,18 +21,22 @@ const SignUp = () => {
                 placeholder="email"
                 name="email"
                 />
+                {props.touched.email && props.errors.email && <p>{props.errors.email}</p>}
 
                 <Field 
                 type="text" 
                 placeholder="password"
                 name="password"
                 />
+                {props.touched.password && props.errors.password && <p>{props.errors.password}</p>}
 
                 <Field 
                 type="text" 
                 placeholder="password"
                 name="passwordConfirm"
                 />
+                 {props.touched.passwordConfirm && props.errors.passwordConfirm && <p>{props.errors.passwordConfirm}</p>}
+
                 <button>Create</button>
             </Form>
         </div>
