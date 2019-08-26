@@ -1,47 +1,58 @@
 import React, {useState} from 'react';
+import {Form, Field, withFormik, yupToFormErrors} from 'formik'
+import * as Yup from "yup";
 
 const SignUp = () => {
-    const [user, setUser] = useState({email:'', password:'', confirm: ''})
-
-    const handleChange = event => {
-        setUser({...user,
-        [event.target.name] : event.target.value})
-    }
-
-    const handleSubmit = event => {
-        event.preventDefault();
-        console.log(user)
-    }
+    const [user, setUser] = useState({email:'', password:'', passwordConfirm: ''})
 
     return (
         <div>
             SignUp
-            <form onSubmit={handleSubmit}>
-                <input 
+            <Form>
+                <Field 
                 type="text" 
                 placeholder="email"
                 name="email"
-                value = {user.email}
-                onChange={handleChange}
                 />
-                <input 
+
+                <Field 
                 type="text" 
                 placeholder="password"
                 name="password"
-                value = {user.password}
-                onChange={handleChange}
                 />
-                <input 
+
+                <Field 
                 type="text" 
                 placeholder="password"
-                name="confirm"
-                value = {user.confirm}
-                onChange={handleChange}
+                name="passwordConfirm"
                 />
                 <button>Create</button>
-            </form>
+            </Form>
         </div>
     )
 }
 
-export default SignUp;
+const FormikSignUp = withFormik({
+    mapPropsToValues(values){
+        return {
+            email: values.email || '',
+            password: values.password || '',
+            passwordConfirm: values.passwordConfirm || '',
+        }
+    },
+
+    validationSchema: Yup.object().shape({
+            email: Yup.string().required("An email is important to keep you validated"),
+            password: Yup.string().required("A password is important, you can't miss"),
+            passwordConfirm: Yup.string().oneOf(
+                [Yup.ref('password')],
+                'Passwords do not match')
+            }),
+
+    handleSubmit(values, {setUser}){
+        console.log(values)
+        // setUser(values)
+    }
+})(SignUp)
+
+export default FormikSignUp;
