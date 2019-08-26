@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Form, Field, withFormik} from 'formik'
 import * as Yup from "yup";
+import axios from 'axios';
 
 const SignUp = (props) => {
     const [user, setUser] = useState([])
@@ -18,10 +19,10 @@ const SignUp = (props) => {
             <Form>
                 <Field 
                 type="text" 
-                placeholder="email"
-                name="email"
+                placeholder="username"
+                name="username"
                 />
-                {props.touched.email && props.errors.email && <p>{props.errors.email}</p>}
+                {props.touched.username && props.errors.username && <p>{props.errors.username}</p>}
 
                 <Field 
                 type="text" 
@@ -30,12 +31,12 @@ const SignUp = (props) => {
                 />
                 {props.touched.password && props.errors.password && <p>{props.errors.password}</p>}
 
-                <Field 
+                {/* <Field 
                 type="text" 
                 placeholder="password"
                 name="passwordConfirm"
                 />
-                 {props.touched.passwordConfirm && props.errors.passwordConfirm && <p>{props.errors.passwordConfirm}</p>}
+                 {props.touched.passwordConfirm && props.errors.passwordConfirm && <p>{props.errors.passwordConfirm}</p>} */}
 
                 <button>Create</button>
             </Form>
@@ -46,23 +47,32 @@ const SignUp = (props) => {
 const FormikSignUp = withFormik({
     mapPropsToValues(values){
         return {
-            email: values.email || '',
+            username: values.username || '',
             password: values.password || '',
-            passwordConfirm: values.passwordConfirm || '',
+            // passwordConfirm: values.passwordConfirm || '',
         }
     },
 
     validationSchema: Yup.object().shape({
-            email: Yup.string().required("An email is important to keep you validated"),
-            password: Yup.string().required("A password is important, you can't miss"),
-            passwordConfirm: Yup.string().oneOf(
-                [Yup.ref('password')],
-                'Passwords do not match')
+            username: Yup.string().required("A username is important to keep you validated"),
+            password: Yup.string()
+                                .required("A password is important, you can't miss")
+                                .min(8, "Password  should be 8 characters minimum.")
+                                .matches(/(^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.{8,}))/, "Password must contain at least one uppercase character and one special character"),
+            // passwordConfirm: Yup.string().oneOf(
+            //     [Yup.ref('password')],
+            //     'Passwords do not match')
             }),
 
     handleSubmit(values, {setUser}){
         console.log(values)
-        // setUser(values)
+        axios
+            .post(`https://finding-planets.herokuapp.com/auth/register`, values)
+            .then(res => {
+                // setUser(res.data)
+                console.log('user',res)
+            })
+            .catch(err => console.log(err))
     }
 })(SignUp)
 
